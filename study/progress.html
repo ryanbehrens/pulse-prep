@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070d16">
+<title>Progress · Pulse Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/theme.css">
+<style>
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .kpi { background: var(--glass); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .kpi b { display: block; font-size: 24px; font-weight: 800; } .kpi span { font-size: 11.5px; color: var(--mute); }
+  .crow { margin-top: 12px; } .crow .top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+  .crow .top span { color: var(--mute); }
+  .crow .bar > i { background: var(--c); }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+  .week div { text-align: center; font-size: 11px; color: var(--mute); }
+  .week i { display: block; height: 34px; border-radius: 10px; margin-bottom: 4px; background: rgba(255,255,255,.06); }
+  .week i.on { background: linear-gradient(160deg, var(--accent), var(--accent-2)); box-shadow: 0 0 14px rgba(63,208,255,.35); }
+  .hist { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .hist:first-child { border-top: 0; }
+</style>
+</head>
+<body data-root="../" data-tab="study">
+<main class="page">
+  <div class="page-head"><h1>Progress</h1><p>Saved on this device.</p></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="card section"><h3>This week</h3><div class="week" id="week"></div></div>
+  <div class="card section"><h3>Accuracy by test plan category</h3><p>Focus on the shortest bars first.</p><div id="cats"></div></div>
+  <div class="card section"><h3>Recent quizzes</h3><div id="hist" style="margin-top:6px"></div></div>
+  <button class="btn block section" id="reset" style="color:var(--bad)">Reset my progress</button>
+</main>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script src="../data/flashcards.js"></script>
+<script>
+  function draw() {
+    const ans = Store.answers();
+    const tot = Object.values(ans).reduce((t, x) => ({ r: t.r + x.right, n: t.n + x.total }), { r: 0, n: 0 });
+    const mastered = Object.values(Store.cards()).filter(c => c.box >= 4).length;
+    document.getElementById('kpis').innerHTML = `<div class="kpi"><b>${Store.streak()}</b><span>day streak</span></div>
+      <div class="kpi"><b>${tot.n ? Math.round(100 * tot.r / tot.n) + '%' : '–'}</b><span>accuracy (${tot.n} Qs)</span></div>
+      <div class="kpi"><b>${mastered}</b><span>cards mastered</span></div>`;
+    // last 7 days
+    const studied = new Set(JSON.parse(localStorage.getItem(APP.storageKey) || '{}').days || []);
+    const days = [...Array(7)].map((_, k) => { const d = new Date(); d.setDate(d.getDate() - 6 + k); return d; });
+    document.getElementById('week').innerHTML = days.map(d => `<div><i class="${studied.has(d.toISOString().slice(0, 10)) ? 'on' : ''}"></i>${d.toLocaleDateString(undefined, { weekday: 'narrow' })}</div>`).join('');
+    document.getElementById('cats').innerHTML = APP.categories.map(c => {
+      const a = ans[c.id]; const p = a && a.total ? Math.round(100 * a.right / a.total) : null;
+      return `<div class="crow" style="--c:${c.color}"><div class="top"><b>${c.name}</b><span>${p === null ? 'no answers yet' : `${p}% · ${a.total} Qs`}</span></div><div class="bar"><i style="width:${p || 0}%"></i></div></div>`;
+    }).join('');
+    const h = Store.quizzes();
+    document.getElementById('hist').innerHTML = h.length ? h.slice(0, 8).map(q => `<div class="hist"><span>${UI.esc(q.label || 'Quiz')}<br><span class="small muted">${new Date(q.date).toLocaleDateString()}</span></span><b>${q.score}/${q.total}</b></div>`).join('') : '<div class="empty">No quizzes yet. <a href="quiz.html" style="color:var(--accent)">Take one</a></div>';
+  }
+  document.getElementById('reset').onclick = () => { if (document.getElementById('reset').dataset.sure) { Store.reset(); location.reload(); } else { document.getElementById('reset').dataset.sure = 1; document.getElementById('reset').textContent = 'Tap again to confirm reset'; } };
+  draw();
+</script>
+</body>
+</html>

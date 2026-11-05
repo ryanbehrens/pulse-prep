@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070d16">
+<title>Study · Pulse Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/theme.css">
+<style>
+  .mode { display: flex; align-items: center; gap: 14px; padding: 18px 16px; }
+  .mode .icon-bubble { width: 52px; height: 52px; border-radius: 16px; background: color-mix(in srgb, var(--c) 18%, transparent); color: var(--c); box-shadow: 0 0 26px color-mix(in srgb, var(--c) 25%, transparent); }
+  .mode h3 { font-size: 17px; }
+  .mode .go { margin-left: auto; color: var(--mute); }
+  .mode .go svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .mode::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 10%, transparent), transparent 60%); pointer-events: none; }
+  .ring { width: 96px; height: 96px; flex: none; }
+  .ring circle { fill: none; stroke-width: 10; }
+  .summary { display: flex; align-items: center; gap: 16px; }
+</style>
+</head>
+<body data-root="../" data-tab="study">
+<main class="page">
+  <div class="page-head rise"><h1>Study</h1><p>Pick a mode. Your progress saves on this device.</p></div>
+  <div class="card summary rise" style="margin-top:14px">
+    <svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,.08)"/><circle id="ring" cx="50" cy="50" r="42" stroke="url(#g)" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)" style="transition:stroke-dashoffset 1s ease"/><defs><linearGradient id="g"><stop offset="0" stop-color="#2b7bff"/><stop offset="1" stop-color="#3fd0ff"/></linearGradient></defs><text x="50" y="56" text-anchor="middle" fill="#e8eef4" font-size="20" font-weight="800" font-family="Inter" id="ring-t">0%</text></svg>
+    <div><h3>Deck mastery</h3><p id="ring-sub">Master cards by marking them "Got it" several times in a row.</p></div>
+  </div>
+  <div class="stack section">
+    <a class="card tap mode rise" href="flashcards.html" style="--c:#b48cff"><span class="icon-bubble">__cards__</span><div><h3>Flashcards</h3><p>Flip, swipe, and let spaced repetition focus on what you miss.</p></div><span class="go">__arrow__</span></a>
+    <a class="card tap mode rise" href="quiz.html" style="--c:#3ddc97;animation-delay:.06s"><span class="icon-bubble">__quiz__</span><div><h3>Mock quiz</h3><p>Exam-style questions, select-all-that-apply and full rationales.</p></div><span class="go">__arrow__</span></a>
+    <a class="card tap mode rise" href="progress.html" style="--c:#3fd0ff;animation-delay:.12s"><span class="icon-bubble">__chart__</span><div><h3>Progress</h3><p>Streaks, accuracy by test plan category, and what to study next.</p></div><span class="go">__arrow__</span></a>
+  </div>
+</main>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script src="../data/flashcards.js"></script>
+<script>
+  document.querySelector('main').innerHTML = document.querySelector('main').innerHTML.replace(/__(\w+)__/g, (_, n) => UI.icon(n));
+  const total = DATA.flashcards.length, mastered = DATA.flashcards.filter(c => Store.cardBox(c.id) >= 4).length;
+  const pct = total ? Math.round(100 * mastered / total) : 0;
+  requestAnimationFrame(() => { document.getElementById('ring').style.strokeDashoffset = 264 * (1 - pct / 100); });
+  document.getElementById('ring-t').textContent = pct + '%';
+  document.getElementById('ring-sub').textContent = `${mastered} of ${total} cards mastered.`;
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070d16">
+<title>Pulse Prep: NCLEX-RN study companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/theme.css">
+<style>
+  .hello { padding: 18px 2px 0; }
+  .hello h1 { font-size: 27px; font-weight: 800; }
+  .hello p { margin: 4px 0 0; color: var(--mute); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .stat { background: var(--glass); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+  .stat b { display: block; font-size: 20px; font-weight: 800; }
+  .stat span { font-size: 11.5px; color: var(--mute); }
+
+  /* floating tiles */
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tile { position: relative; border-radius: 22px; padding: 16px 14px 14px; min-height: 132px; display: flex; flex-direction: column; justify-content: space-between;
+    background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02)); border: 1px solid var(--line); overflow: hidden;
+    animation: float 6s ease-in-out infinite; transition: transform .15s; }
+  .tile:nth-child(2) { animation-delay: -1.5s; } .tile:nth-child(3) { animation-delay: -3s; } .tile:nth-child(4) { animation-delay: -4.5s; }
+  .tile:active { transform: scale(.96); }
+  .tile::after { content: ''; position: absolute; width: 120px; height: 120px; right: -40px; top: -40px; border-radius: 50%;
+    background: radial-gradient(circle, var(--c) 0%, transparent 70%); opacity: .35; }
+  .tile .icon-bubble { background: color-mix(in srgb, var(--c) 18%, transparent); color: var(--c); box-shadow: 0 0 24px color-mix(in srgb, var(--c) 30%, transparent); }
+  .tile h3 { font-size: 16px; margin-top: 14px; }
+  .tile p { margin: 2px 0 0; font-size: 12.5px; color: var(--mute); }
+
+  /* anatomy feature */
+  .feature { position: relative; display: block; border-radius: 24px; padding: 20px 18px; min-height: 230px; overflow: hidden;
+    background: radial-gradient(90% 120% at 85% 30%, rgba(63,208,255,.28), transparent 60%), linear-gradient(150deg, #10243c, #0a1424);
+    border: 1px solid rgba(63,208,255,.35); box-shadow: 0 0 0 1px rgba(63,208,255,.08), 0 18px 40px rgba(0,0,0,.4); }
+  .feature .txt { position: relative; z-index: 2; max-width: 58%; }
+  .feature .kicker { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .feature h2 { font-size: 23px; font-weight: 800; margin-top: 6px; line-height: 1.15; }
+  .feature p { color: #b9c8d6; font-size: 13px; margin: 8px 0 14px; }
+  .feature img { position: absolute; right: -6px; top: 10px; height: 250px; z-index: 1; filter: drop-shadow(0 10px 25px rgba(63,208,255,.25));
+    animation: sway 7s ease-in-out infinite; transform-origin: 50% 90%; }
+  @keyframes sway { 0%,100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-8px) rotate(1.5deg); } }
+  .feature .ring { position: absolute; right: 10px; bottom: -40px; width: 200px; height: 60px; border-radius: 50%;
+    border: 1px solid rgba(63,208,255,.4); box-shadow: 0 0 30px rgba(63,208,255,.25); z-index: 0; }
+
+  /* question of the day */
+  .qotd .opt { display: block; width: 100%; text-align: left; margin-top: 8px; padding: 11px 12px; border-radius: 12px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.04); font-size: 14px; cursor: pointer; }
+  .qotd .opt.right { border-color: var(--good); background: rgba(61,220,151,.12); }
+  .qotd .opt.wrong { border-color: var(--bad); background: rgba(255,107,107,.1); }
+  .qotd .why { margin-top: 10px; font-size: 13.5px; color: #c9d6e2; }
+</style>
+</head>
+<body data-root="./" data-tab="home">
+<main class="page">
+  <section class="hello rise">
+    <h1 id="greet">Welcome back</h1>
+    <p>Small steps every day add up to a pass.</p>
+    <div class="stats">
+      <div class="stat"><b id="s-streak">0</b><span>day streak</span></div>
+      <div class="stat"><b id="s-mastered">0</b><span>cards mastered</span></div>
+      <div class="stat"><b id="s-acc">–</b><span>quiz accuracy</span></div>
+    </div>
+  </section>
+
+  <section class="section rise" style="animation-delay:.08s">
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="section rise" style="animation-delay:.16s">
+    <a class="feature" href="anatomy/">
+      <div class="ring"></div>
+      <img src="assets/img/anatomy-hero.webp" alt="">
+      <div class="txt">
+        <div class="kicker">Interactive 3D</div>
+        <h2>Explore the human body</h2>
+        <p>Over 3,000 structures across 10 systems. Rotate, zoom, search and study NCLEX pearls on every part.</p>
+        <span class="btn primary">Open 3D body</span>
+      </div>
+    </a>
+  </section>
+
+  <section class="section rise" style="animation-delay:.24s">
+    <div class="section-title"><h2>Question of the day</h2><a href="study/quiz.html">More questions</a></div>
+    <div class="card qotd" id="qotd"></div>
+  </section>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/shell.js"></script>
+<script src="data/questions.js"></script>
+<script>
+  const h = new Date().getHours();
+  document.getElementById('greet').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+
+  // stats
+  document.getElementById('s-streak').textContent = Store.streak();
+  document.getElementById('s-mastered').textContent = Object.values(Store.cards()).filter(c => c.box >= 4).length;
+  const a = Object.values(Store.answers()).reduce((t, x) => ({ r: t.r + x.right, n: t.n + x.total }), { r: 0, n: 0 });
+  if (a.n) document.getElementById('s-acc').textContent = Math.round(100 * a.r / a.n) + '%';
+
+  // floating tiles
+  const tiles = [
+    ['learn/', 'learn', 'Learn', 'Every exam topic, organized by the test plan', '#3fd0ff'],
+    ['study/flashcards.html', 'cards', 'Flashcards', 'Flip, swipe and master', '#b48cff'],
+    ['study/quiz.html', 'quiz', 'Quick quiz', 'Exam-style questions with rationales', '#3ddc97'],
+    ['cheatsheets/', 'cheats', 'Cheat sheets', 'Formulas, labs and calculators', '#f2c46d'],
+  ];
+  document.getElementById('tiles').innerHTML = tiles.map(([href, ic, t, d, c]) =>
+    `<a class="tile" href="${href}" style="--c:${c}"><span class="icon-bubble">${UI.icon(ic)}</span><div><h3>${t}</h3><p>${d}</p></div></a>`).join('');
+
+  // question of the day: same question for everyone on a given date
+  const qs = DATA.questions.filter(q => q.type === 'single');
+  const day = Math.floor(Date.now() / 864e5);
+  const q = qs[day % qs.length];
+  const box = document.getElementById('qotd');
+  box.innerHTML = `<div class="badge" style="background:${UI.cat(q.cat).color}22;color:${UI.cat(q.cat).color}">${UI.esc(UI.cat(q.cat).name)}</div>
+    <p style="color:var(--ink);font-size:15px;margin-top:10px">${UI.esc(q.stem)}</p>
+    ${q.options.map((o, i) => `<button class="opt" data-i="${i}">${UI.esc(o)}</button>`).join('')}
+    <div class="why" hidden></div>`;
+  box.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b || box.dataset.done) return;
+    box.dataset.done = 1;
+    const right = q.answer.includes(+b.dataset.i);
+    box.querySelectorAll('.opt').forEach(o => { if (q.answer.includes(+o.dataset.i)) o.classList.add('right'); });
+    if (!right) b.classList.add('wrong'); else UI.confetti(50);
+    Store.recordAnswer(q.cat, right);
+    const w = box.querySelector('.why'); w.hidden = false;
+    w.innerHTML = `<b>${right ? 'Correct!' : 'Not quite.'}</b> ${UI.esc(q.rationale)}`;
+    document.getElementById('streak-n').textContent = Store.streak();
+  });
+</script>
+</body>
+</html>

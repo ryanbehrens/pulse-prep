@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070d16">
+<title>Quiz · Pulse Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/theme.css">
+<style>
+  .top { display: flex; justify-content: space-between; align-items: center; margin: 14px 2px 8px; font-size: 13px; color: var(--mute); }
+  .stem { font-size: 17px; font-weight: 650; line-height: 1.45; margin: 12px 0 4px; }
+  .type { font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .opt { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; margin-top: 10px; padding: 13px 14px; border-radius: 14px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.04); font-size: 14.5px; cursor: pointer; transition: border-color .15s, background .15s, transform .1s; }
+  .opt:active { transform: scale(.985); }
+  .opt .mark { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--mute); display: grid; place-items: center; margin-top: 1px; }
+  .opt.sata .mark { border-radius: 6px; }
+  .opt.sel { border-color: var(--accent); background: rgba(63,208,255,.1); }
+  .opt.sel .mark { border-color: var(--accent); background: var(--accent); }
+  .opt.right { border-color: var(--good); background: rgba(61,220,151,.12); }
+  .opt.right .mark { border-color: var(--good); background: var(--good); }
+  .opt.wrong { border-color: var(--bad); background: rgba(255,107,107,.1); }
+  .opt.wrong .mark { border-color: var(--bad); background: var(--bad); }
+  .why { margin-top: 14px; padding: 14px; border-radius: 14px; background: rgba(63,208,255,.07); border: 1px solid rgba(63,208,255,.25); font-size: 14px; }
+  .why b { display: block; margin-bottom: 4px; }
+  .result { text-align: center; padding: 28px 12px; }
+  .result .big { font-size: 54px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .setup .row { display: flex; gap: 8px; margin-top: 10px; }
+</style>
+</head>
+<body data-root="../" data-tab="study">
+<main class="page">
+  <div class="page-head"><h1>Mock quiz</h1><p>Read every option before you choose, just like on the real exam.</p></div>
+  <div id="setup" class="card setup rise" style="margin-top:14px">
+    <h3>Topic</h3><div class="chips" id="cats" style="margin-top:10px"></div>
+    <h3 style="margin-top:16px">Length</h3><div class="row" id="lens"></div>
+    <button class="btn primary block" style="margin-top:18px" id="go">Start quiz</button>
+  </div>
+  <div id="run" hidden>
+    <div class="top"><span id="qn"></span><span id="score"></span></div>
+    <div class="bar"><i id="prog" style="width:0"></i></div>
+    <div class="card" style="margin-top:12px" id="qcard"></div>
+    <button class="btn primary block" style="margin-top:12px" id="act">Submit</button>
+  </div>
+  <div id="res" class="card result" hidden></div>
+</main>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script src="../data/questions.js"></script>
+<script>
+  let cat = UI.qs('c') || 'all', len = 5, qs = [], i = 0, right = 0, picked = new Set(), checked = false;
+  const cats = [['all', 'All topics'], ...APP.categories.filter(c => DATA.questions.some(q => q.cat === c.id)).map(c => [c.id, c.name])];
+  const cEl = document.getElementById('cats');
+  const drawSetup = () => {
+    cEl.innerHTML = cats.map(([id, n]) => `<button class="chip ${id === cat ? 'on' : ''}" data-c="${id}">${UI.esc(n)}</button>`).join('');
+    document.getElementById('lens').innerHTML = [5, 10, 25].map(n => `<button class="chip ${n === len ? 'on' : ''}" data-l="${n}">${n} questions</button>`).join('');
+  };
+  cEl.onclick = e => { const b = e.target.closest('[data-c]'); if (b) { cat = b.dataset.c; drawSetup(); } };
+  document.getElementById('lens').onclick = e => { const b = e.target.closest('[data-l]'); if (b) { len = +b.dataset.l; drawSetup(); } };
+  drawSetup();
+
+  document.getElementById('go').onclick = () => {
+    const pool = DATA.questions.filter(q => cat === 'all' || q.cat === cat).sort(() => Math.random() - .5);
+    qs = pool.slice(0, len); i = 0; right = 0;
+    document.getElementById('setup').hidden = true; document.getElementById('res').hidden = true; document.getElementById('run').hidden = false;
+    show();
+  };
+  function show() {
+    const q = qs[i], c = UI.cat(q.cat);
+    picked = new Set(); checked = false;
+    document.getElementById('qn').textContent = `Question ${i + 1} of ${qs.length}`;
+    document.getElementById('score').textContent = `${right} correct`;
+    document.getElementById('prog').style.width = (100 * i / qs.length) + '%';
+    document.getElementById('act').textContent = 'Submit';
+    document.getElementById('qcard').innerHTML = `
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge" style="background:${c.color}22;color:${c.color}">${UI.esc(c.name)}</span>${q.status === 'draft' ? '<span class="badge draft">Draft</span>' : ''}</div>
+      <div class="stem">${UI.esc(q.stem)}</div>
+      <div class="type">${q.type === 'sata' ? 'Select all that apply' : 'Choose one answer'}</div>
+      ${q.options.map((o, k) => `<button class="opt ${q.type === 'sata' ? 'sata' : ''}" data-k="${k}"><span class="mark"></span><span>${UI.esc(o)}</span></button>`).join('')}
+      <div class="why" id="why" hidden></div>`;
+    document.getElementById('qcard').classList.remove('rise'); void document.getElementById('qcard').offsetWidth; document.getElementById('qcard').classList.add('rise');
+  }
+  document.getElementById('qcard').onclick = e => {
+    const b = e.target.closest('.opt'); if (!b || checked) return;
+    const k = +b.dataset.k, q = qs[i];
+    if (q.type === 'single') picked = new Set([k]); else picked.has(k) ? picked.delete(k) : picked.add(k);
+    document.querySelectorAll('.opt').forEach(o => o.classList.toggle('sel', picked.has(+o.dataset.k)));
+  };
+  document.getElementById('act').onclick = () => {
+    const q = qs[i];
+    if (!checked) {
+      if (!picked.size) return;
+      checked = true;
+      const ok = picked.size === q.answer.length && q.answer.every(a => picked.has(a));
+      if (ok) right++;
+      Store.recordAnswer(q.cat, ok);
+      document.querySelectorAll('.opt').forEach(o => {
+        const k = +o.dataset.k; o.classList.remove('sel');
+        if (q.answer.includes(k)) o.classList.add('right'); else if (picked.has(k)) o.classList.add('wrong');
+      });
+      const w = document.getElementById('why'); w.hidden = false;
+      w.innerHTML = `<b style="color:${ok ? 'var(--good)' : 'var(--bad)'}">${ok ? 'Correct' : 'Incorrect'}</b>${UI.esc(q.rationale)}<div class="small muted" style="margin-top:8px">Source: ${UI.esc(q.source || '')}</div>`;
+      document.getElementById('act').textContent = i + 1 < qs.length ? 'Next question' : 'See results';
+      document.getElementById('score').textContent = `${right} correct`;
+    } else if (++i < qs.length) show();
+    else finish();
+  };
+  function finish() {
+    const pct = Math.round(100 * right / qs.length);
+    Store.recordQuiz(right, qs.length, cat === 'all' ? 'All topics' : UI.cat(cat).name);
+    document.getElementById('run').hidden = true;
+    const r = document.getElementById('res'); r.hidden = false;
+    r.innerHTML = `<div class="big">${pct}%</div><h2>${pct >= 80 ? 'Excellent work!' : pct >= 60 ? 'Nice progress' : 'Keep going: every miss teaches something'}</h2>
+      <p class="muted">${right} of ${qs.length} correct</p>
+      <div style="display:grid;gap:10px;margin-top:18px"><button class="btn primary" id="again">New quiz</button><a class="btn" href="progress.html">See progress</a></div>`;
+    document.getElementById('again').onclick = () => { r.hidden = true; document.getElementById('setup').hidden = false; };
+    if (pct >= 60) UI.confetti(pct >= 80 ? 120 : 60);
+    document.getElementById('streak-n').textContent = Store.streak();
+  }
+  if (UI.qs('c')) document.getElementById('go').click();
+</script>
+</body>
+</html>

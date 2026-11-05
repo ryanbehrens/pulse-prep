@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070d16">
+<title>Learn · Pulse Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/theme.css">
+<style>
+  .exam { background: linear-gradient(150deg, rgba(63,208,255,.16), rgba(43,123,255,.08)); border-color: rgba(63,208,255,.3); }
+  .exam .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .exam .facts div { background: rgba(0,0,0,.2); border-radius: 12px; padding: 8px 10px; }
+  .exam .facts b { display: block; font-size: 18px; } .exam .facts span { font-size: 11px; color: var(--mute); }
+  .group-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); margin: 20px 2px 8px; }
+  .cat { display: flex; gap: 12px; align-items: center; }
+  .cat .icon-bubble { background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
+  .cat .body { flex: 1; min-width: 0; }
+  .cat h3 { font-size: 15px; }
+  .cat .meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--mute); margin: 3px 0 6px; }
+  .cat .bar > i { background: var(--c); }
+  .cat .go { color: var(--mute); width: 18px; flex: none; }
+  .cat .go svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body data-root="../" data-tab="learn">
+<main class="page">
+  <div class="page-head rise"><h1>Learn</h1><p>Everything on the exam, organized the way NCSBN organizes the test plan.</p></div>
+  <a class="card tap exam rise" href="topic.html?c=exam" style="display:block;margin-top:14px">
+    <h3>How the NCLEX-RN works</h3>
+    <p>Adaptive testing, question types and clinical judgment.</p>
+    <div class="facts"><div><b>85–150</b><span>questions</span></div><div><b>5 hr</b><span>time limit</span></div><div><b>CAT</b><span>adaptive</span></div></div>
+  </a>
+  <div id="cats"></div>
+  <p class="small muted" style="margin-top:18px">Category weights from the NCSBN 2026 NCLEX-RN Test Plan (effective April 2026).</p>
+</main>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/shell.js"></script>
+<script src="../data/flashcards.js"></script>
+<script src="../data/questions.js"></script>
+<script>
+  const groups = [...new Set(APP.categories.map(c => c.group))];
+  document.getElementById('cats').innerHTML = groups.map(g => `<div class="group-label">${g}</div><div class="stack">` +
+    APP.categories.filter(c => c.group === g).map((c, i) => {
+      const nCards = DATA.flashcards.filter(f => f.cat === c.id).length, nQ = DATA.questions.filter(q => q.cat === c.id).length;
+      return `<a class="card tap cat rise" href="topic.html?c=${c.id}" style="--c:${c.color};animation-delay:${i * .05}s">
+        <span class="icon-bubble">${UI.icon(c.icon)}</span>
+        <div class="body"><h3>${c.name}</h3>
+          <div class="meta"><span>${c.range[0]}–${c.range[1]}% of the exam</span><span>${nCards} cards · ${nQ} Qs</span></div>
+          <div class="bar"><i style="width:${(c.range[1] / 21) * 100}%"></i></div></div>
+        <span class="go">${UI.icon('arrow')}</span></a>`;
+    }).join('') + '</div>').join('');
+</script>
+</body>
+</html>
