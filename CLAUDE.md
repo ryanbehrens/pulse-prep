@@ -41,5 +41,5 @@ Read this first, then only the files for the page you're asked to work on.
 
 ## Status (Nov 2026)
 - Done: anatomy app (10 systems, search, isolate, parts list, lighting, mobile tools). Shell, home, Learn, Study (flashcards / quiz / progress), Cheat sheets with calculators.
-- Content: **starter drafts only** (20 flashcards, 10 questions, 8 cheat sheets, category summaries). The next step is content research per `docs/RESEARCH_BRIEF.md`.
+- Content: **drafts only** (248 flashcards, 10 questions, 8 cheat sheets, category summaries). The next step is content research per `docs/RESEARCH_BRIEF.md`.
 - Ideas queued: logo; user accounts and cloud progress; anatomy quiz mode; NGN case-study questions; exam countdown.

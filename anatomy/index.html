@@ -151,6 +151,31 @@
     #info-raw { display:none; }
     #layers { right:10px; width:auto; }
   }
+  /* Touch-friendly sizes (phones and tablets) */
+  @media (max-width: 720px), (pointer: coarse) {
+    .tbar .ib { width:54px; height:54px; border-radius:13px; }
+    .tbar { gap:10px; }
+    .tbar .ib svg { width:24px; height:24px; }
+    #layers { font-size:15.5px; padding:14px 16px; }
+    .tabs button { font-size:15px; padding:11px 0; }
+    .lh { font-size:12px; margin-bottom:4px; }
+    .lh.sub { margin-top:14px; }
+    .tog { gap:12px; padding:11px 0; }
+    .tog input, .ph input, .pi input { width:21px; height:21px; }
+    .sw { width:13px; height:13px; }
+    .tog em { font-size:13px; }
+    .op { font-size:14px; padding:6px 0 6px 0; }
+    .op input { height:28px; }
+    #pq { font-size:16px; padding:11px 12px; }
+    .prow { gap:8px; margin:10px 0 8px; } .prow .btn { padding:11px 0; font-size:14px; }
+    .ph { padding:9px 0; gap:8px; } .ph label { gap:11px; }
+    .ph em, .pi em { font-size:12.5px; }
+    .chev { width:36px; height:36px; font-size:22px; }
+    .mini { font-size:12.5px; padding:6px 10px; border-radius:8px; }
+    .pbody { padding-left:20px; max-height:45vh; }
+    .pgh { font-size:11.5px; margin:10px 0 4px; }
+    .pi { gap:11px; padding:9px 0; font-size:15px; }
+  }
 </style>
 </head>
 <body>
@@ -225,5 +250,14 @@
 <div id="tip" hidden></div>
 <div id="loading"><div><span id="loading-text">Loading anatomy…</span><div class="track"><div id="bar"></div></div></div></div>
 <script src="app.js"></script>
+<script>
+// Phones: tapping anywhere outside the Layers/Parts panel closes it.
+document.addEventListener('pointerdown', function (e) {
+  var panel = document.getElementById('layers');
+  if (innerWidth >= 720 || !panel.classList.contains('shown')) return;
+  if (e.target.closest('#layers, #layers-btn')) return;
+  document.getElementById('layers-btn').click();
+}, true);
+</script>
 </body>
 </html>
