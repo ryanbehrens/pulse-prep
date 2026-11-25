@@ -82,6 +82,32 @@
   }
 
   window.UI = { icon, cat, esc, qs, confetti, root };
+
+  // Install to home screen + PayPal support, shared across Ryan's apps
+  // (assets/js/app-extras.js). The banner shows on Home; the cards fill
+  // any <div id="app-extras"> (on the Progress page).
+  const axScript = document.createElement('script');
+  axScript.src = root + 'assets/js/app-extras.js?v=1';
+  axScript.onload = () => {
+    const ax = window.AppExtras;
+    if (!ax) return;
+    ax.init({ name: 'Pulse Prep', storageKey: 'pulseprep-app-extras' });
+    const mount = () => {
+      const main = document.querySelector('main');
+      if (tab === 'home' && main) ax.mountBanner(main);
+      const slot = document.getElementById('app-extras');
+      if (slot) {
+        ax.mountInstallCard(slot, { text: 'Opens full screen like a regular app, with the Pulse Prep icon. Study pages you have opened work even without a signal.' });
+        ax.mountSupport(slot, { text: 'Pulse Prep is free for nursing students and always will be. If it has helped you study, you can chip in toward hosting costs.' });
+      }
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
+    else mount();
+  };
+  document.head.appendChild(axScript);
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    addEventListener('load', () => navigator.serviceWorker.register(root + 'sw.js', { scope: root }).catch(() => {}));
+  }
   document.addEventListener('DOMContentLoaded', () => {
     const n = document.getElementById('streak-n');
     if (n && window.Store) n.textContent = Store.streak();

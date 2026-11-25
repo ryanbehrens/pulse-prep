@@ -105,3 +105,10 @@ h1, h2, h3 { margin: 0; letter-spacing: -.015em; }
 .rise { animation: rise .5s cubic-bezier(.2, .8, .2, 1) both; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Colors for the shared install + support cards (assets/js/app-extras.js). */
+:root {
+  --ax-accent: var(--accent); --ax-accent-ink: #031220; --ax-surface: var(--glass); --ax-surface-2: var(--bg-2);
+  --ax-text: var(--ink); --ax-muted: var(--mute); --ax-line: var(--line); --ax-radius: var(--radius); --ax-modal-bg: var(--bg-1);
+}
+.app-extras { display: grid; gap: 12px; }

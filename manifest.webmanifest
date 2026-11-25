@@ -1,0 +1,18 @@
+{
+  "name": "Pulse Prep: NCLEX-RN study companion",
+  "short_name": "Pulse Prep",
+  "description": "Flashcards, practice quizzes, cheat sheets and a 3D anatomy explorer for the NCLEX-RN.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070d16",
+  "theme_color": "#070d16",
+  "categories": ["education", "medical"],
+  "icons": [
+    { "src": "/assets/img/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/img/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/img/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

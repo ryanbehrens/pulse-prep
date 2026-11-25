@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /study/progress
+Disallow: /docs/
+
+Sitemap: https://pulse-prep-umber.vercel.app/sitemap.xml
